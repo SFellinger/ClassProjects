@@ -1,0 +1,98 @@
+---
+title: "Lab 1"
+author: "Steven Fellinger"
+date: "9/12/22"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+Submissions should be make in blackboard and consist of exactly 2 files: the R Markdown (rmd) file and the PDF file.
+
+## Problem 1: Inputting data
+
+Find a small dataset with two variables and input columns of values for both variables. (5 Points)
+```{r}
+BAOpp <- c(.291, .229, .236, .195, .25, .091, .318, .286, .176, .237, .194, .286, .259, .256, .257, .25, .294, .248, .234, .176, .235, .235, .261, .341)
+ERA <- c(6.26, 3.17, 3.84, 1.29, 4.71, 1.35, 6.68, 5.4, 4.07, 4.57, 4.95, 8.25, 5.34, 9.31, 3.09, 4.05, 0, 4.67, 2.89, 2.94, 3.49, 4.41, 5.05, 7.84)
+```
+
+## Problem 2: Calculating statistics
+Calculate the mean, standard deviation and Pearson correlation coefficient for your dataset. (10 Points)
+
+```{r}
+mean(BAOpp)
+mean(ERA)
+sd(BAOpp)
+sd(ERA)
+cor(BAOpp, ERA)
+```
+
+## Problem 3: Plot a scatterplot
+Create a scatterplot of your dataset. (5 Points)
+
+```{r}
+plot(BAOpp, ERA)
+```
+
+## Problem 4: Read in a csv and get a data summary
+Find a dataset(.csv), read it and get a summary of the dataset. (10 Points)
+
+```{r}
+PitchingData <- read.csv("Pitching.csv")
+summary(PitchingData)
+```
+
+Use the dataset from Problem 4 to asnwer the next problems.
+
+## Problem 5: Create a histogram 
+
+Select a continuous variable in your dataset and create a histogram for that variable. Add chart title, labels, and color. (10 Points)
+
+```{r}
+library(ggplot2)
+a <- ggplot(PitchingData, aes(BAOpp))
+a+geom_histogram(aes(y=stat(density)), binwidth=.05, fill="#69b3a2", color="#e9ecef")+
+  labs(title="Histogram of Opponent Batting Average", x="BAOpp", y="Density")
+```
+## Problem 6: Create a Bar chart 
+
+Select a discrete variable in your dataset and create a Bar chart for that variable. Add chart title, labels, and color.  (10 Points)
+
+```{r}
+barplot(table(PitchingData$W), main="Bar Chart of Wins", ylab="Frequency", col=c("green"))
+```
+
+## Problem 7: Create a scatterplot 
+
+Select a two continuous variables in your dataset and create a scatterplot for these variables. Add chart title, labels, and color. (10 Points)
+
+```{r}
+plot(PitchingData$BAOpp,PitchingData$ERA,main="Opponent Batting Average vs Earned Run Average",xlab="Opponent Batting Average",ylab="Earned Run Average", col=c("blue"))
+```
+
+## Problem 8: Creating a Dot plot for two variables (Discrete X, Continuous Y) 
+
+Select a two variables (Discrete X, Continuous Y) in your dataset and create a a dot plot for these variables. Add chart title, labels, and color. (10 Points)
+
+```{r}
+library(ggplot2)
+b <- ggplot(PitchingData,aes(ERA,W))
+b+geom_dotplot(binaxis="y", aes(fill=ERA), dotsize=.5,stackdir="up",binwidth=1)+
+  labs(title="Wins vs Earned Run Average", color="#e9ecef")
+```
+
+## Problem 9: Creating a Box plot for two variables (Discrete X, Continuous Y) 
+
+Select a two variables (Discrete X, Continuous Y) in your dataset from problem 4 and create a a Box plot for these variables.Add chart title, labels, and color. (10 Points)
+```{r}
+b <- ggplot(PitchingData,aes(BAOpp,L))
+b+geom_boxplot(aes(fill=BAOpp))+
+  labs(title = "Opponent Batting Average vs Losses", color="#69b3a2")
+```
+
+
+
+
+

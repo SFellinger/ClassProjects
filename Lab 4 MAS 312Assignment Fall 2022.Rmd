@@ -1,0 +1,111 @@
+---
+title: "Lab 4"
+author: "Steven Fellinger"
+date: "12/6/22"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+##Problem: 
+
+Professional basketball has truly become a sport that generates interest among fans around the world. More and more players come from outside the United States to play in the National Basketball Association (NBA). You want to develop a regression model to predict the number of wins achieved by each NBA team, considering the following variables: Points scored, points allowed, field goal percentage allowed, field goal percentage difference, own turnovers, opponent turnovers, offensive rebound percentage and defensive rebound percentage. Use the data contained in excel file "NBA".
+
+
+1. Read in the data and get a summary of the data using the summary function. 
+
+```{r}
+data <- read.csv("NBA.csv")
+summary(data)
+```
+
+2.	Conduct a correlation analysis. Is there any concern about correlation between the independent variables (Multicollinearity)? If so, which variable(s) would you eliminate from the analysis? Why? 
+```{r}
+c=cor(data)
+c
+```
+
+*There is no concern about correlation between the independent variables because no correlation value is greater than .7.*
+
+
+3. Generate a linear model to predict the dependent variable (`Wins`) from all of the other variables except `variable highly correlated`. 
+
+```{r}
+reg=lm(Wins~.,data=data)
+summary(reg)
+```
+
+4. Based on VIF, is there any concern about correlation between the independent variables (Multicollinearity)? Why?
+
+```{r}
+installed.packages("car")
+library("car")
+vif(reg)
+```
+
+*All values are less than 5, so there is no concern about correlation between the independent variables.*
+
+5.	Use the F test and a 0.05 level of significance to determine whether there is a relationship between the variables 
+
+*Since the p-value for the F test is less than .05, we reject Ho. There is a significant relationship between the variables.*
+
+6. Use the t test and a 0.05 level of significance to determine the significance of each independent variable. Would you consider eliminating any variable from the model? Which variable(s)? Which one would you drop first?
+
+*For every value except field goal % allowed, opponent turnovers, and offensive rebound %, the p-value is less than .05, so there is a significant relationship between each independent variable and the dependent variable. There is not a significant relationship between field goal % allowed, opponent turnovers, and offensive rebound % with wins, though. I would consider eliminating field goal % allowed from the model because it has the highest p-value and smallest t-value.*
+
+7. Find the best regression equation by dropping one at a time insignificant variables in the model. What variables did you keep in your model? What is the interpretation of the coefficients of the recommended regression equation? (Include all the outputs)
+
+```{r}
+reg2=lm(Wins~.-Field.Goal...Allowed,data=data)
+summary(reg2)
+reg3=lm(Wins~.-Field.Goal...Allowed-Opponent.Turnovers,data=data)
+summary(reg3)
+reg4=lm(Wins~.-Field.Goal...Allowed-Opponent.Turnovers-Offensive.Rebound..,data=data)
+summary(reg4)
+reg5=lm(Wins~.-Field.Goal...Allowed-Opponent.Turnovers-Offensive.Rebound..-Defensive.Rebound..,data=data)
+summary(reg5)
+```
+
+*I kept Points Scored and Allowed, Field Goal % Difference, and Own Turnovers in the model. The model is Wins=63.3839+1.9586(Points Scored)-1.9775(Points Allowed)+2.4078(Field Goal % Difference)-1.5029(Own Turnovers). The interpretations of the coefficients are that as points scored and Field Goal % Difference increase by 1 unit, wins increase by 1.9586 and 2.4078 (respectively). Meanwhile, as points allowed and own turnovers increase by one unit, wins decrease by 1.9775 and 1.5029 (respectively).*
+
+8. Use the R function step() to find the best model using backward approach, forward selection, and stepwise.Compare the results with the the best regression equation output from question 7. Which regression equation would you use? How much is the adjusted R2 for the selected model?
+
+```{r}
+reg6=lm(Wins~.,data=data)
+BE=step(reg2,data=data,direction="backward")
+summary(BE)
+null=lm(Wins~1,data=data)
+null
+full=lm(Wins~.,data=data)
+full
+FWD=step(null,scope=list(upper=full),data=data,direction="forward")
+summary(FWD)
+BOTH=step(null,scope=list(upper=full),data=data,direction="both")
+summary(BOTH)
+```
+
+*I would choose the regression model from question 7 because it has the least amount of variables and all variables are significant. This model has an adjusted R2 value of .925.*
+
+
+9. Use the Best-subset regression to find the best predictors of "wins" considering the independent variables that are not highly correlated. What variables would you include in the regression equation, based on the adjusted R2 ?
+
+```{r}
+library(leaps)
+library(MASS)
+BSR=regsubsets(Wins~.,data=data)
+plot(BSR,scale="adjr2")
+plot(BSR,scale="Cp")
+```
+
+*I would include Points Scored, Points Allowed, Field Goal % Difference, Own Turnovers, and Defensive Rebound % in the regression equation, based on the adjusted R2.*
+
+10. State the coefficients of the regression equation in the selected regression model.
+
+```{r}
+coef(BSR,5)
+```
+
+
+
+
